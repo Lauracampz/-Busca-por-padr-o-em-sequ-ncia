@@ -1,0 +1,267 @@
+#include <math.h>
+#include <sys/time.h>
+#include <stdlib.h>
+#include <stdio.h>
+#define MAX 1000
+
+/* ========================================================================= */
+
+typedef int TipoChave;
+
+typedef struct {
+  int Chave;
+  int tipo;
+  int pontoMedio;
+  /* outros componentes */
+} TipoItem;
+
+typedef struct TipoCelula *TipoApontador;
+
+typedef struct TipoCelula {
+  TipoItem Item;
+  TipoApontador Prox;
+} TipoCelula;
+
+typedef struct {
+  TipoApontador Primeiro, Ultimo;
+} TipoLista;
+
+/* ========================================================================= */
+
+void FLVazia(TipoLista *Lista)
+{ Lista -> Primeiro = (TipoApontador) malloc(sizeof(TipoCelula));
+  Lista -> Ultimo = Lista -> Primeiro;
+  Lista -> Primeiro -> Prox = NULL;
+}
+
+int Vazia(TipoLista Lista)
+{ return (Lista.Primeiro == Lista.Ultimo);
+}
+
+void Insere(TipoItem x, TipoLista *Lista)
+{ Lista -> Ultimo -> Prox = (TipoApontador) malloc(sizeof(TipoCelula));
+  Lista -> Ultimo = Lista -> Ultimo -> Prox;
+  Lista -> Ultimo -> Item = x;
+  Lista -> Ultimo -> Prox = NULL;
+}
+
+void Retira(TipoApontador p, TipoLista *Lista, TipoItem *Item)
+{ /*  ---   Obs.: o item a ser retirado e  o seguinte ao apontado por  p --- */
+  TipoApontador q;
+  if (Vazia(*Lista) || p == NULL || p -> Prox == NULL)
+  { printf(" Erro   Lista vazia ou posi  c   a o n  a o existe\n");
+    return;
+  }
+  q = p -> Prox;
+  *Item = q -> Item;
+  p -> Prox = q -> Prox;
+  if (p -> Prox == NULL) Lista -> Ultimo = p;
+  free(q);
+}
+
+void Imprime(TipoLista Lista)
+{ TipoApontador Aux;
+  Aux = Lista.Primeiro -> Prox;
+  while (Aux != NULL)
+    { printf("%d\n", Aux -> Item.Chave);
+      Aux = Aux -> Prox;
+    }
+}
+
+/* ========================================================================== */
+int main()
+{
+    FILE *fp;
+    char arquivo [500];
+    int numElementos;
+    //int numDiferentes=1;
+
+    TipoItem lista[MAX];
+    int padrao [5] = {1, 3, 2, 3, 1};
+    int *original,*vetorNum, *numEleSeq;
+    printf("Digite o nome do arquivo: ");
+    scanf("%s", arquivo);
+    fp = fopen(arquivo,"r"); // Abre arquivo texto para leitura
+    if(!fp)
+    {
+        printf("Erro na abertura do arquivo.\n");
+        return 0;
+    }
+
+    // separando as informacoes
+   fscanf(fp,"%i",&numElementos);
+
+    original = malloc( numElementos * sizeof(int));
+
+        for(int i = 0; i < numElementos; i++){
+
+            fscanf(fp,"%i",&*(original + i));
+
+         }
+
+
+
+
+
+         // encontrando a quantidade de sequencias
+
+         int qtdSeq=1;
+         for(int i = 0; i < numElementos-1; i++){
+            if(original[i]!= original[i+1]){
+                qtdSeq++;
+            }
+         }
+         //printf("%i sequencia \n", qtdSeq);
+
+         // definindo a sequencia
+         vetorNum=malloc( qtdSeq * sizeof(int));
+         numEleSeq=malloc( qtdSeq * sizeof(int));
+
+         int p=1;
+         vetorNum[0]=original[0];
+
+         // pegando todas as diferentes sequencias presentes
+         /*for(int i = 0; i < numElementos; i++){
+                aux2=0;
+             for(int j = i+1; j < numElementos; j++){
+
+                 if((original[i])== (original[j])){
+                     aux2=1;
+
+                     break;
+                 }
+             }
+
+              for(int k=0;k<p;k++){
+                if(original[i] == vetorNum[k]){
+                   aux1=1;
+                   break;
+
+                }
+                else{
+                    aux1=0;
+                    break;
+                }
+
+              }
+              if(aux2==0 && aux1==0){
+                vetorNum[p]=original[i];
+                p++;
+              }
+
+        }*/
+        int u=1;
+        while(u<qtdSeq){
+        for(int i = 1; i < numElementos; i++)
+        {
+                if( original[i] != original[i-1] ){
+                  vetorNum[u]=original[i];
+                  u++;
+                }
+            }
+
+        }
+
+
+       /* for(int i = 1; i < numElementos; i++){
+
+            if(original[i]!= original[i-1]){
+                vetorNum[r]=original[i];
+
+            }
+            r++;
+        }*/
+        //printf(" seg\n");
+        /*for(int i = 0; i < qtdSeq; i++){
+
+            printf("%i ", vetorNum[i]);
+            printf("\n");
+         }*/
+
+         for(int i = 0; i < qtdSeq; i++){
+
+            switch ( vetorNum[i] )
+            {
+            case 0 :
+            vetorNum[i]=1;
+            break;
+
+            case 128 :
+            vetorNum[i]=2;
+            break;
+
+            case 255 :
+            vetorNum[i]=3;
+            break;
+         }}
+
+         /*for(int i = 0; i < qtdSeq; i++){
+
+            printf("%i ", vetorNum[i]);
+            printf("\n");
+         }*/
+
+         // contando quantos numeros diferentes temos em cada sequencia
+
+        int z=0;
+        int numSeq=1;
+
+        for(int j = 0; j < numElementos; j++)
+        {
+                if(original[j]== original[j+1]){
+                    numSeq++; // incrementando o numero de elementos na sequencia
+                }
+                else{
+                    // colocando o numero de elementos de cada seq no vetor
+                    numEleSeq[z]=numSeq;
+                    z++;
+                    numSeq=1;
+                }
+                if(z==p && original[j]!=original[j-1]){ // se diferente no ultimo elemento
+                      numEleSeq[z]=numElementos-j;
+
+                }
+
+        }
+        for(int j = 0; j < qtdSeq; j++){
+             lista[j].tipo=vetorNum[j];
+        }
+
+        /*for(int j = 0; j < qtdSeq; j++){
+             printf("%i \n", numEleSeq[j]);
+        }*/
+
+
+        int q=0;
+        int o=0;
+        int w=0;
+        while(o < qtdSeq && w<qtdSeq ){
+
+                if(lista[o].tipo == padrao[q]){
+                    o++;
+                    q++;
+
+                }
+                else if(q==5){
+                        w=qtdSeq;
+
+                }
+                else{
+                    q=0;
+                }
+
+                w++;
+
+        }
+
+        //printf("%i aaa ", q);
+
+
+        if(q >= 5){
+            printf("Resultado: Padrao encontrado.");
+        }
+        else{
+            printf("Resultado: Padrao nao encontrado.");
+
+        }
+}
