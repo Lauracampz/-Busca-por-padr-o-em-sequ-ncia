@@ -1,0 +1,1 @@
+# -Busca-por-padr-o-em-sequ-ncia
